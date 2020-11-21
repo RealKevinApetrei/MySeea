@@ -832,8 +832,11 @@ def setup(): # Main Menu Setup
 
 
 if __name__ == "__main__": # If Program is run directly...
-    os.chdir(os.path.dirname(__file__))
-
+    try:
+        os.chdir(os.path.dirname(__file__))
+    except OSError:
+        pass
+    
     try:
         os.chdir(r"./Files/")
     except FileNotFoundError: # Shouldn't happen anymore
