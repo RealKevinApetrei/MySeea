@@ -264,8 +264,12 @@ class Settings(Application): # Settings Window
             # MenuBar
         self.menubar = tk.Menu(self)
 
+            # File Menu
+        self.file_menu = tk.Menu(self, tearoff=False)
+        self.menubar.add_cascade(label="File", menu=self.file_menu)
+
             # Help Menu
-        self.menubar.add_command(label="Help", command=self.launch_help_window)
+        self.file_menu.add_command(label="Help", command=self.launch_help_window)
 
                 # URL Settings (GENERAL)
         self.url_setting_label = tk.Label(self.general_settings_labelframe, text="Host URL:", font=self.hel10)
@@ -627,8 +631,12 @@ class Main(Application): # Main Window
             # MenuBar
         self.menubar = tk.Menu(self)
 
+            # File Menu
+        self.file_menu = tk.Menu(self, tearoff=False)
+        self.menubar.add_cascade(label="File", menu=self.file_menu)
+
             # Settings Menu
-        self.menubar.add_command(label="Settings", command=self.launch_settings_window)
+        self.file_menu.add_command(label="Settings", command=self.launch_settings_window)
 
             # Connection Menu
         self.connection_menu = tk.Menu(self, tearoff=False)
@@ -653,7 +661,7 @@ class Main(Application): # Main Window
         self.update_view_tables()
 
             # Help Menu
-        self.menubar.add_command(label="Help", command=self.launch_help_window)
+        self.file_menu.add_command(label="Help", command=self.launch_help_window)
 
             # Database Frame TODO: Make database scale
         self.database_frame = tk.Frame(self, bd=2, relief="raised")
