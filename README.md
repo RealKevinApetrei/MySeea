@@ -32,6 +32,7 @@ MySeea allows you to connect to a web-based MySQL Database and view it's tables.
 
 **INFO: All data is stored locally. This means that no information will be stored externally or outsourced to anybody but you.**
 **DISCLAIMER: This program may not work on Linux or MacOS as those versions have not been released yet!**
+**DISCLAIMER: This program is still in *BETA* and may have certain bugs. Minimal features are available.**
 
 ## Features
 Here are some of the features of the project:
