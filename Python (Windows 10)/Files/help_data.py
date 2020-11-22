@@ -17,7 +17,13 @@ You can connect to a MySQL database by:
 
 INFO: Make sure you enter correct details for your database and save new changes!\
 """
-                                                      }
+                                                      },
+                              "What is the default port?": {
+                                                       "name": "What is the default port?",
+                                                       "type": "General Connection",
+                                                       "children": None,
+                                                       "description": "Default port for MySQL connections is 3306."
+                              }
 }
 
 # Settings Keybinds Node Data (settings_keybinds_node)
@@ -28,10 +34,16 @@ settings_keybinds_node_data = {"Quick Save": {
                                           "description": "You can use (CTRL-S) to quick save on a settings window!"
                                           },
                                "Test Connection": {
-                                          "name": "Test Connection (CTRL-T)",
+                                          "name": "Test Connection (CTRL-P)",
                                           "type": "Settings Keybinds and Shortcuts",
                                           "children": None,
-                                          "description": "You can use (CTRL-S) to quick save on a settings window!"
+                                          "description": "You can use (CTRL-P) to quick save on a settings window!"
+                                          },
+                              "Go Back": {
+                                          "name": "Go Back (CTRL-B)",
+                                          "type": "Settings Keybinds and Shortcuts",
+                                          "children": None,
+                                          "description": "You can use (CTRL-B) to go back to main menu from a settings window!"
                                           }
 }
 

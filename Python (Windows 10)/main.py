@@ -207,7 +207,8 @@ class HelpWindow(Application): # Help Window Make Help Window
                 # GENERAL USAGE HELP
         self.general_usage_node = self.help_treeview.insert(self.usage_help_node, "end", text="General", values=("usage_node")) # General (Node)
 
-        self.help_treeview.insert(self.general_usage_node , "end", text='How to connect to database?', values=("general_usage_node")) # How to connect to database?
+        self.help_treeview.insert(self.general_usage_node, "end", text='How to connect to database?', values=("general_usage_node")) # How to connect to database?
+        self.help_treeview.insert(self.general_usage_node, "end", text="What is the default port?", values=("general_usage_node")) # What is the default connection port?
 
                 # Keybinds Help
         self.keybinds_help_node = self.help_treeview.insert("", "end", text="Keybinds", values=("main_node")) # Main
@@ -217,6 +218,7 @@ class HelpWindow(Application): # Help Window Make Help Window
 
         self.help_treeview.insert(self.settings_keybinds_node, "end", text="Quick Save", values=("settings_keybinds_node")) # Quick Save (SETTINGS)
         self.help_treeview.insert(self.settings_keybinds_node, "end", text="Test Connection", values=("settings_keybinds_node")) # Test Connection (SETTINGS)
+        self.help_treeview.insert(self.settings_keybinds_node, "end", text="Go Back", value=("settings_keybinds_node")) # Go Back (SETTINGS)
 
     def back(self): # Back to Main
         self.destroy()
@@ -343,7 +345,8 @@ class Settings(Application): # Settings Window
 
         # Keybinds
         self.bind("<Control-s>", self.save) # Ctrl+S to Save
-        self.bind("<Control-t>", self.test_connection) # Ctrl+T to Test Connection
+        self.bind("<Control-p>", self.test_connection) # Ctrl+P to Test Connection
+        self.bind("<Control-b>", self.back) # Ctrl+B to go Back
 
         self.config(menu=self.menubar)
         self.update_allowed_tables()
@@ -403,13 +406,30 @@ class Settings(Application): # Settings Window
 
     def test_connection(self, event=None): # Tests database connection
         if self.settings["connection_type"] == "mysql.connector (DEFAULT)": # Connect DB
+            settings_split = self.settings["url"].split(":")
+            if len(settings_split) == 1:
+                self.host_name = self.settings["url"]
+                self.port = 3306
+            elif len(settings_split) == 2:
+                if settings_split[1][:2] == "//":
+                    self.host_name = self.settings["url"]
+                    self.port = 3306
+                else:
+                    self.host_name = settings_split[0]
+                    self.port = settings_split[1]
+            elif len(settings_split) == 3:
+                self.host_name = settings_split[0] + ":" + settings_split[1]
+                self.port = settings_split[2]
+
             try:
                 self.mysql_connection = mysql.connector.connect(
-                    host=self.settings["url"],
+                    host=self.host_name,
                     user=self.settings["user"],
                     passwd=self.settings["password"],
-                    database=self.settings["database"]
+                    database=self.settings["database"],
+                    port=self.port
                 )
+
                 if self.mysql_connection is not None:
                     self.mysql_cursor = self.mysql_connection.cursor()
                     self.mysql_cursor.close()
@@ -437,10 +457,11 @@ class Settings(Application): # Settings Window
                     messagebox.showerror("URL Name Error", "You cannot have a ' ' inside the Host URL!")
                     return
                 elif ("https://" not in raw_url and "http://" not in raw_url) and raw_url != "localhost":
-                    self.url_setting_entry.configure(bg="orange2")
-                    self.after("5000", lambda: self.url_setting_entry.configure(bg="white"))
-                    if not messagebox.askokcancel("Missing HTTP/S", "URL is missing 'http://' or 'https://'.\nAre you sure you want to save?"):
-                        return
+                    if not len(raw_url.split(":")) == 2:
+                        self.url_setting_entry.configure(bg="orange2")
+                        self.after("5000", lambda: self.url_setting_entry.configure(bg="white"))
+                        if not messagebox.askokcancel("Missing HTTP/S", "URL is missing 'http://' or 'https://'.\nAre you sure you want to save?"):
+                            return
 
                 # Creating Database
                 db_conn = sqlite3.connect("settings.db")
@@ -491,7 +512,7 @@ class Settings(Application): # Settings Window
     def set_saved_false(self): # Used in self.save(). Sets self.saved to False
         self.saved = False
 
-    def back(self): # Back to Main
+    def back(self, event=None): # Back to Main
         if messagebox.askokcancel("Go back", "Are you sure you want to go back?\nAny changes will be left unsaved."):
             self.destroy()
             setup()
@@ -713,6 +734,7 @@ class Main(Application): # Main Window
                         db_cell = tk.Entry(self.database_frame, width=10, relief="sunken")
                         db_cell.grid(row=row_no, column=column+1)
                         db_cell.insert(tk.END, row[column])
+                        db_cell.configure(state="disabled")
                     row_no += 1
                     
             except mysql.connector.errors.ProgrammingError as error:
@@ -801,12 +823,28 @@ class Main(Application): # Main Window
     def connect_db(self):
         if not self.status:
             if self.settings["connection_type"] == "mysql.connector (DEFAULT)":
+                settings_split = self.settings["url"].split(":")
+                if len(settings_split) == 1:
+                    self.host_name = self.settings["url"]
+                    self.port = 3306
+                elif len(settings_split) == 2:
+                    if settings_split[1][:2] == "//":
+                        self.host_name = self.settings["url"]
+                        self.port = 3306
+                    else:
+                        self.host_name = settings_split[0]
+                        self.port = settings_split[1]
+                elif len(settings_split) == 3:
+                    self.host_name = settings_split[0] + ":" + settings_split[1]
+                    self.port = settings_split[2]
+
                 try:
                     self.mysql_connection = mysql.connector.connect(
-                        host=self.settings["url"],
+                        host=self.host_name,
                         user=self.settings["user"],
                         passwd=self.settings["password"],
-                        database=self.settings["database"]
+                        database=self.settings["database"],
+                        port=self.port
                     )
                     if self.mysql_connection is not None:
                         self.mysql_cursor = self.mysql_connection.cursor()
