@@ -13,7 +13,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage and Controls](#usage-and-controls)
-  - [Connect with mysql.connector](#connect-with-mysql.connector)
+  - [Connect with mysql.connector](#connect-with-mysqlconnector)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [License](#license)
