@@ -13,7 +13,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Usage and Controls](#usage-and-controls)
-  - [Connect with mysql.connector?](#connect-with-mysql.connector)
+  - [Connect with mysql.connector](#connect-with-mysql.connector)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [License](#license)
@@ -85,7 +85,7 @@ Information on how to use the program.
 
 **Usage and Control Information is on the `Help` menu on the application.**
 
-## How to connect with mysql.connector?
+## Connect with mysql.connector
 
 1. Go to `Settings`
 2. Fill in database login details
