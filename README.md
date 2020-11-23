@@ -15,7 +15,7 @@
   - [Usage and Controls](#usage-and-controls)
   - [How to connect with mysql.connector?](#how-to-connect-with-mysqlconnector)
   - [Roadmap](#roadmap)
-  - [Changelog] (#changelog)
+  - [Changelog](#changelog)
   - [Contributing](#contributing)
   - [License](#license)
   - [Contact](#contact)
