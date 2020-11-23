@@ -15,7 +15,6 @@
   - [Usage and Controls](#usage-and-controls)
   - [How to connect with mysql.connector?](#how-to-connect-with-mysqlconnector)
   - [Roadmap](#roadmap)
-  - [Changelog](#changelog)
   - [Contributing](#contributing)
   - [License](#license)
   - [Contact](#contact)
@@ -29,8 +28,8 @@
 This project is a MySQL Database Viewer. It features **table reading** and a **functional feel**.
 This is probably my biggest project I have done as of *22 November 2020*.
 
-MySeea allows you to connect to a web-based MySQL Database and view it's tables.
-Please see [changelog](#changelog) for details on updates.
+MySeea allows you to connect to a web-based MySQL Database and view it's tables.\
+Please see [changelog](https://github.com/RealKevinApetrei/MySeea/blog/master/CHANGELOG.md) for details on updates.
 
 **INFO: All data is stored locally. This means that no information will be stored externally or outsourced to anybody but you.**
 **DISCLAIMER: This program may not work on Linux or MacOS as those versions have not been released yet!**
@@ -103,14 +102,6 @@ Information on how to use the program.
 See the [open issues](https://github.com/RealKevinApetrei/MySeea/issues) for a list of proposed features (and known issues).
 
 I am happy to add more features upon request and I will be working on more features in time. The Help Menu is not fully developed, please contact me if you would like me to add anything urgently.
-
-## Changelog
-
-| Version | Description | Date of Release |
-| ----------- | ----------- | ----------- |
-| v0.91.58-beta | + Fixed MacOS Menu System not working | 22/11/2020|
-| v0.??.??-beta | + Added Port Customisability | 22/11/2020 |
-| v0.89.64-beta | + First Release<br>+ General Features | 21/11/2020 |
 
 ## Contributing
 
