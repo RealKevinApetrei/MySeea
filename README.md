@@ -31,9 +31,9 @@ This is probably my biggest project I have done as of *22 November 2020*.
 MySeea allows you to connect to a web-based MySQL Database and view it's tables.\
 Please see [changelog](https://github.com/RealKevinApetrei/MySeea/blob/main/CHANGELOG.md) for details on updates.
 
-**INFO: All data is stored locally. This means that no information will be stored externally or outsourced to anybody but you.**
-**DISCLAIMER: This program may not work on Linux or MacOS as those versions have not been released yet!**
-**DISCLAIMER: This program is still in *BETA* and may have certain bugs. Minimal features are available.**
+**INFO: All data is stored locally. This means that no information will be stored externally or outsourced to anybody but you.**\
+**DISCLAIMER: This program may not work on Linux or MacOS as those versions have not been released yet!**\
+**DISCLAIMER: This program is still in *BETA* and may have certain bugs. Minimal features are available.**\
 
 ## Features
 Here are some of the features of the project:
