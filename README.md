@@ -24,9 +24,11 @@
 ## Information
 ![MySeeaShowcase](https://user-images.githubusercontent.com/65184258/99902135-531b5380-2cb3-11eb-860a-921eaa8f1479.PNG)
 
-
 This project is a MySQL Database Viewer. It features **table reading** and a **functional feel**.
-This is probably my biggest project I have done as of *22 November 2020*.
+This is probably my biggest project I have released as of *22 November 2020*.
+
+You can connect with any MySQL Web Database and view tables. In future updates I will be adding the possibility to edit tables.
+I am looking for support on doing this project and it is currently in active development!
 
 MySeea allows you to connect to a web-based MySQL Database and view it's tables.\
 Please see [changelog](https://github.com/RealKevinApetrei/MySeea/blob/main/CHANGELOG.md) for details on updates.
