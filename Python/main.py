@@ -383,7 +383,7 @@ class Settings(Application): # Settings Window
         
         self.save_button.configure(state="normal")
 
-    def check_changes(self, *args): # TODO: Check Settings Changes
+    def check_changes(self, *args):
         changed_settings = { # Changed Dictionary of Settings (TEMP)
             "url": self.url_setting_entry.get(),
             "user": self.user_setting_entry.get(),
