@@ -238,6 +238,7 @@ class Settings(Application): # Settings Window
 
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.saved = False
+        self.changes = False
 
         # Window Contents
             # Save Button
@@ -274,29 +275,37 @@ class Settings(Application): # Settings Window
                 # URL Settings (GENERAL)
         self.url_setting_label = tk.Label(self.general_settings_labelframe, text="Host URL:", font=self.hel10)
         self.url_setting_label.grid(row=0, column=0, sticky=tk.W)
+        
+        self.url_setting_entry_variable = tk.StringVar()
 
-        self.url_setting_entry = tk.Entry(self.general_settings_labelframe, width=50, relief="sunken", bd=2, font=self.hel10)
+        self.url_setting_entry = tk.Entry(self.general_settings_labelframe, textvariable=self.url_setting_entry_variable, width=50, relief="sunken", bd=2, font=self.hel10)
         self.url_setting_entry.grid(row=0, column=1, sticky=tk.W)
 
                 # User Settings (GENERAL)
         self.user_setting_label = tk.Label(self.general_settings_labelframe, text="User:", font=self.hel10)
         self.user_setting_label.grid(row=1, column=0, sticky=tk.W)
 
-        self.user_setting_entry = tk.Entry(self.general_settings_labelframe, width=25, relief="sunken", bd=2, font=self.hel10)
+        self.user_setting_entry_variable = tk.StringVar()
+
+        self.user_setting_entry = tk.Entry(self.general_settings_labelframe, textvariable=self.user_setting_entry_variable, width=25, relief="sunken", bd=2, font=self.hel10)
         self.user_setting_entry.grid(row=1, column=1, sticky=tk.W)
 
                 # Password Settings (GENERAL)
         self.password_setting_label = tk.Label(self.general_settings_labelframe, text="Password:", font=self.hel10)
         self.password_setting_label.grid(row=2, column=0, sticky=tk.W)
 
-        self.password_setting_entry = tk.Entry(self.general_settings_labelframe, width=25, relief="sunken", bd=2, font=self.hel10, show="•",)
+        self.password_setting_entry_variable = tk.StringVar()
+
+        self.password_setting_entry = tk.Entry(self.general_settings_labelframe, textvariable=self.password_setting_entry_variable, width=25, relief="sunken", bd=2, font=self.hel10, show="•",)
         self.password_setting_entry.grid(row=2, column=1, sticky=tk.W)
 
                 # Database Settings (GENERAL)
         self.database_setting_label = tk.Label(self.general_settings_labelframe, text="Database:", font=self.hel10)
         self.database_setting_label.grid(row=3, column=0, sticky=tk.W)
 
-        self.database_setting_entry = tk.Entry(self.general_settings_labelframe, width=25, relief="sunken", bd=2, font=self.hel10)
+        self.database_setting_entry_variable = tk.StringVar()
+
+        self.database_setting_entry = tk.Entry(self.general_settings_labelframe, textvariable=self.database_setting_entry_variable, width=25, relief="sunken", bd=2, font=self.hel10)
         self.database_setting_entry.grid(row=3, column=1, sticky=tk.W)
 
             # Security Settings Setup
@@ -347,6 +356,13 @@ class Settings(Application): # Settings Window
             "connection_type": self.settings[5]
         }
 
+        # Save Security Traces
+        self.url_setting_entry_variable.trace("w", self.check_changes)
+        self.user_setting_entry_variable.trace("w", self.check_changes)
+        self.password_setting_entry_variable.trace("w", self.check_changes)
+        self.database_setting_entry_variable.trace("w", self.check_changes)
+        self.chosen_connection_type.trace("w", self.check_changes)
+
         # Keybinds
         self.bind("<Control-s>", self.save) # Ctrl+S to Save
         self.bind("<Control-p>", self.test_connection) # Ctrl+P to Test Connection
@@ -355,14 +371,58 @@ class Settings(Application): # Settings Window
         self.config(menu=self.menubar)
         self.update_allowed_tables()
 
+        self.disable_saving_security()
+    
+    def disable_saving_security(self): # Disabled Saving Security and Saving Options
+        self.changes = False
+        
+        self.save_button.configure(state="disabled")
+
+    def enable_saving_security(self): # Enable Saving Security and Saving Options
+        self.changes = True
+        
+        self.save_button.configure(state="normal")
+
+    def check_changes(self, *args): # TODO: Check Settings Changes
+        changed_settings = { # Changed Dictionary of Settings (TEMP)
+            "url": self.url_setting_entry.get(),
+            "user": self.user_setting_entry.get(),
+            "password": self.password_setting_entry.get(),
+            "database": self.database_setting_entry.get(),
+            "connection_type": self.chosen_connection_type.get()
+        }
+
+        changed_allowed_tables = [table for table in self.allowed_tables_setting_added_list.get(0, tk.END)] # Changed List of Allowed Tables (TEMP)
+        
+        db_conn = sqlite3.connect("settings.db")      
+
+        with db_conn:
+            if db_conn is not None:
+                db_cursor = db_conn.cursor()
+
+                db_cursor.execute("SELECT * FROM allowed_tables")
+                saved_allowed_tables = [item[0] for item in db_cursor.fetchall()]
+
+        if (self.settings == changed_settings) and (saved_allowed_tables == changed_allowed_tables):
+            self.disable_saving_security()
+        else:
+            self.enable_saving_security()
+
     def launch_help_window(self): # Launch help window
-        if messagebox.askokcancel("Quit", "Are you sure you want to go there?\nAny changes will be left unsaved."):
+
+        if self.changes and messagebox.askokcancel("Quit", "Are you sure you want to go there?\nAny changes will be left unsaved."):
+            self.destroy()
+            self.help_menu = HelpWindow(previous_master="settings")
+            self.help_menu.mainloop()
+        else:
             self.destroy()
             self.help_menu = HelpWindow(previous_master="settings")
             self.help_menu.mainloop()
 
     def close(self): # If window is closed...
-        if messagebox.askokcancel("Quit", "Are you sure you want to quit?\nAny changes will be left unsaved."):
+        if self.changes and messagebox.askokcancel("Quit", "Are you sure you want to quit?\nAny changes will be left unsaved."):
+            self.destroy()
+        else:
             self.destroy()
 
     def allow_table(self): # Allows table
@@ -395,12 +455,16 @@ class Settings(Application): # Settings Window
             self.allowed_tables.append((self.to_allow,))
             self.update_allowed_tables()
 
+        self.check_changes()
+
     def remove_table(self): # Removes table from "Allowed Tables"
         try:
             self.allowed_tables.remove((self.allowed_tables_setting_added_list.get(tk.ANCHOR),))
             self.update_allowed_tables()
         except ValueError:
             pass
+
+        self.check_changes()
 
     def update_allowed_tables(self): # Updates allowed tables list box
         self.allowed_tables_setting_added_list.delete(0, "end")
@@ -451,78 +515,89 @@ class Settings(Application): # Settings Window
                 messagebox.showerror("Test Failed", "Test Error: {}".format(error))
 
     def save(self, event=None): # Save changes
-        if not self.saved:
-            try:
-                raw_url = self.url_setting_entry.get()
+        if self.changes:
+            if not self.saved:
+                try:
+                    raw_url = self.url_setting_entry.get()
 
-                if " " in raw_url:
-                    self.url_setting_entry.configure(bg="orange2")
-                    self.after("5000", lambda: self.url_setting_entry.configure(bg="white"))
-                    messagebox.showerror("URL Name Error", "You cannot have a ' ' inside the Host URL!")
-                    return
-                elif ("https://" not in raw_url and "http://" not in raw_url) and raw_url != "localhost":
-                    if not len(raw_url.split(":")) == 2:
+                    if " " in raw_url:
                         self.url_setting_entry.configure(bg="orange2")
                         self.after("5000", lambda: self.url_setting_entry.configure(bg="white"))
-                        if not messagebox.askokcancel("Missing HTTP/S", "URL is missing 'http://' or 'https://'.\nAre you sure you want to save?"):
-                            return
+                        messagebox.showerror("URL Name Error", "You cannot have a ' ' inside the Host URL!")
+                        return
+                    elif ("https://" not in raw_url and "http://" not in raw_url) and raw_url != "localhost":
+                        if not len(raw_url.split(":")) == 2:
+                            self.url_setting_entry.configure(bg="orange2")
+                            self.after("5000", lambda: self.url_setting_entry.configure(bg="white"))
+                            if not messagebox.askokcancel("Missing HTTP/S", "URL is missing 'http://' or 'https://'.\nAre you sure you want to save?"):
+                                return
 
-                # Creating Database
-                db_conn = sqlite3.connect("settings.db")
+                    # Creating Database
+                    db_conn = sqlite3.connect("settings.db")
 
-                with db_conn:
-                    if db_conn is not None:
-                        db_cursor = db_conn.cursor()
+                    with db_conn:
+                        if db_conn is not None:
+                            db_cursor = db_conn.cursor()
 
-                        # Save settings
-                        db_cursor.execute("REPLACE INTO settings VALUES (:rowid, :url, :user, :password, :database, :connection_type)",
-                                        {
-                                            "rowid": 1,
-                                            "url": raw_url,
-                                            "user": self.user_setting_entry.get(),
-                                            "password": self.password_setting_entry.get(),
-                                            "database": self.database_setting_entry.get(),
-                                            "connection_type": self.chosen_connection_type.get()
-                                        }
-                                    )
+                            # Save settings
+                            db_cursor.execute("REPLACE INTO settings VALUES (:rowid, :url, :user, :password, :database, :connection_type)",
+                                            {
+                                                "rowid": 1,
+                                                "url": raw_url,
+                                                "user": self.user_setting_entry.get(),
+                                                "password": self.password_setting_entry.get(),
+                                                "database": self.database_setting_entry.get(),
+                                                "connection_type": self.chosen_connection_type.get()
+                                            }
+                                        )
 
-                        db_cursor.execute("DELETE FROM allowed_tables")
-                        db_cursor.executemany("INSERT INTO allowed_tables VALUES (?);", self.allowed_tables)
+                            db_cursor.execute("DELETE FROM allowed_tables")
+                            db_cursor.executemany("INSERT INTO allowed_tables VALUES (?);", self.allowed_tables)
 
-                        db_cursor.execute("SELECT * FROM settings")
+                            db_cursor.execute("SELECT * FROM settings")
 
-                        new_settings = db_cursor.fetchone() # Get and set settings
-                        self.settings = { # Dictionary of Settings
-                            "url": new_settings[1],
-                            "user": new_settings[2],
-                            "password": new_settings[3],
-                            "database": new_settings[4],
-                            "connection_type": new_settings[5]
-                        }
+                            new_settings = db_cursor.fetchone() # Get and set settings
+                            self.settings = { # Dictionary of Settings
+                                "url": new_settings[1],
+                                "user": new_settings[2],
+                                "password": new_settings[3],
+                                "database": new_settings[4],
+                                "connection_type": new_settings[5]
+                            }
 
-                        db_conn.commit()
+                            db_conn.commit()
 
-                        self.saved = True
+                            self.saved = True
 
-                        self.save_button.configure(bg="lawn green", state="disabled")
-                        messagebox.showinfo("Success", "Settings have been saved!")
+                            self.get_settings()
 
-                        self.after("5000", lambda: self.save_button.configure(bg="gray85", state="normal"))
-                        self.after("5000", self.set_saved_false)
-            except Exception as error:
-                self.save_button.configure(bg="red2", state="disabled")
-                messagebox.showerror("Error", "ERROR: " + str(error) + "\nCheck your modifications or call developer.")
+                            self.save_button.configure(bg="lawn green")
+                            messagebox.showinfo("Success", "Settings have been saved!")
+
+                            self.after("5000", lambda: self.save_button.configure(bg="gray85"))
+                            self.after("5000", self.set_saved_false)
+
+                            self.disable_saving_security()
+
+                except Exception as error:
+                    self.save_button.configure(bg="red2", state="disabled")
+                    messagebox.showerror("Error", "ERROR: " + str(error) + "\nCheck your modifications or call developer.")
 
     def set_saved_false(self): # Used in self.save(). Sets self.saved to False
         self.saved = False
 
     def back(self, event=None): # Back to Main
-        if messagebox.askokcancel("Go back", "Are you sure you want to go back?\nAny changes will be left unsaved."):
+        if self.changes and messagebox.askokcancel("Go back", "Are you sure you want to go back?\nAny changes will be left unsaved."):
+            self.destroy()
+            setup()
+        else:
             self.destroy()
             setup()
 
     def get_settings(self): # Get current settings
         db_conn = sqlite3.connect("settings.db")
+
+        self.clear_changeables()
 
         with db_conn:
             if db_conn is not None:
@@ -571,6 +646,14 @@ class Settings(Application): # Settings Window
                 db_cursor.execute("SELECT * FROM settings")
                 return db_cursor.fetchone()
 
+    def clear_changeables(self): # Clears all changeable entries/listboxes
+        self.url_setting_entry.delete(0, tk.END)
+        self.user_setting_entry.delete(0, tk.END)
+        self.password_setting_entry.delete(0, tk.END)
+        self.database_setting_entry.delete(0, tk.END)
+        self.allowed_tables_setting_add_entry.delete(0, tk.END)
+        self.allowed_tables_setting_added_list.delete(0, tk.END)
+
     def reset_settings(self): # Reset current settings
         if messagebox.askokcancel("Reset Settings?", "Are you sure you want to reset ALL settings?\nThis includes Allowed Tables."):
             db_conn = sqlite3.connect("settings.db")
@@ -582,13 +665,7 @@ class Settings(Application): # Settings Window
                     db_cursor.execute("DELETE FROM settings")
                     db_cursor.execute("DELETE FROM allowed_tables")
 
-            # Clear all entries/listboxes
-            self.url_setting_entry.delete(0, tk.END)
-            self.user_setting_entry.delete(0, tk.END)
-            self.password_setting_entry.delete(0, tk.END)
-            self.database_setting_entry.delete(0, tk.END)
-            self.allowed_tables_setting_add_entry.delete(0, tk.END)
-            self.allowed_tables_setting_added_list.delete(0, tk.END)
+            self.clear_changeables()
 
             self.reset_settings_button.configure(bg="lawn green", state="disabled")
             self.after("5000", lambda: self.reset_settings_button.configure(bg="gray85", state="normal"))
